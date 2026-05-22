@@ -1,0 +1,42 @@
+/* Layout responsivo */
+.perfil-container {
+    display: flex;
+    flex-direction: column; /* Móvil: uno debajo del otro */
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Escritorio (≥ 768px) */
+@media (min-width: 768px) {
+    .perfil-container {
+        flex-direction: row; /* Escritorio: lado a lado */
+        align-items: flex-start;
+    }
+
+    .datos-trabajador {
+        flex: 1; /* Ocupa el espacio necesario a la izquierda */
+        position: sticky;
+        top: 20px;
+    }
+
+    .trabajos-realizados {
+        flex: 2; /* Ocupa más espacio a la derecha */
+    }
+}
+
+/* Estilos de la galería */
+.galeria-trabajos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.trabajo-item img {
+    width: 100%;
+    border-radius: var(--radius-md);
+    transition: transform 0.2s;
+}
+
+.trabajo-item img:hover {
+    transform: scale(1.05);
+}
