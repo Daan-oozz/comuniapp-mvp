@@ -4,595 +4,696 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ComuniApp - Mensajes</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+
     <style>
-        /* ── VARIABLES GLOBALES (Basadas en la documentación de ComuniApp) ── */
-        :root {
-            --primary: #F97316; /* Naranja principal */
-            --primary-light: #FFEDD5;
-            --bg: #F9FAFB;
-            --surface: #FFFFFF;
-            --text: #1F2937;
-            --text-muted: #6B7280;
-            --border: #E5E7EB;
-            
-            /* Categorías y Estados */
-            --status-online: #10B981;
-            --cat-hogar: #FFEDD5;
-            
-            /* Tipografía */
-            --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
-            
-            /* Radios y Sombras */
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-            --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-        }
+        /* ═══════════════════════════════════════════════
+           ESTILOS PROPIOS DEL MÓDULO DE MENSAJES
+           (complementan los CSS compartidos)
+           ═══════════════════════════════════════════════ */
 
-        /* ── RESET Y ESTILOS BASE ── */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
+        /* ── Contenedor interior del desktop-main ─────── */
+        .msg-layout {
+            display: flex;
             height: 100%;
-            font-family: var(--font);
-            background-color: var(--bg);
-            color: var(--text);
             overflow: hidden;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button {
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-family: inherit;
-        }
-
-        input {
-            font-family: inherit;
-            outline: none;
-        }
-
-        /* ── LAYOUT PRINCIPAL (Sidebar + Contenedor de Contenido) ── */
-        .app-container {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        /* Barra lateral de navegación global de ComuniApp */
-        .sidebar-left {
-            width: 260px;
-            background-color: var(--surface);
+        /* ── Lista de chats (columna izquierda escritorio) */
+        .msg-list-col {
+            width: 320px;
+            flex-shrink: 0;
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px 16px;
-            flex-shrink: 0;
+            background: var(--surface);
         }
 
-        .brand {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-borde: 32px;
-            padding-left: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 32px;
-        }
-
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .nav-item a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: var(--radius-md);
-            font-weight: 500;
-            color: var(--text-muted);
-            transition: all 0.2s ease;
-        }
-
-        .nav-item.active a, .nav-item a:hover {
-            background-color: var(--primary-light);
-            color: var(--primary);
-        }
-
-        /* AREA PRINCIPAL: Módulo de Mensajería de Dos Columnas */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            background-color: var(--surface);
-        }
-
-        /* Columna Izquierda: Lista de chats/conversaciones */
-        .messages-sidebar {
-            width: 350px;
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            background-color: var(--surface);
-            flex-shrink: 0;
-        }
-
-        .messages-sidebar-header {
-            padding: 24px;
+        .msg-list-header {
+            padding: 24px 20px 16px;
             border-bottom: 1px solid var(--border);
         }
 
-        .messages-sidebar-header h1 {
-            font-size: 20px;
+        .msg-list-header h2 {
+            font-size: 18px;
             font-weight: 700;
-            margin-bottom: 16px;
+            color: var(--text);
+            margin-bottom: 14px;
         }
 
-        .search-bar {
+        /* Buscador — limitado al ancho de su columna */
+        .msg-search {
             display: flex;
             align-items: center;
-            background-color: var(--bg);
-            padding: 10px 14px;
-            border-radius: var(--radius-md);
+            gap: 8px;
+            background: var(--bg);
             border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 9px 12px;
+            width: 100%;          /* nunca sale del contenedor */
+            box-sizing: border-box;
         }
 
-        .search-bar input {
+        .msg-search svg { flex-shrink: 0; }
+
+        .msg-search input {
             border: none;
             background: transparent;
-            margin-left: 8px;
-            width: 100%;
+            font-family: var(--font, inherit);
             font-size: 14px;
+            color: var(--text);
+            width: 100%;
+            outline: none;
         }
 
+        /* ── Items de la lista de chats ───────────────── */
         .chat-list {
             overflow-y: auto;
-            flex-grow: 1;
+            flex: 1;
         }
 
         .chat-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 16px 24px;
+            padding: 14px 20px;
             border-bottom: 1px solid #F3F4F6;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: background 0.15s;
         }
 
-        .chat-item:hover, .chat-item.active {
-            background-color: var(--bg);
-        }
+        .chat-item:hover { background: var(--bg); }
 
         .chat-item.active {
-            border-left: 4px solid var(--primary);
-            padding-left: 20px;
+            background: var(--bg);
+            border-left: 3px solid var(--primary);
+            padding-left: 17px;
         }
 
-        .avatar-container {
+        .chat-avatar {
             position: relative;
-            width: 48px;
-            height: 48px;
+            width: 46px;
+            height: 46px;
             flex-shrink: 0;
         }
 
-        .avatar {
+        .chat-avatar img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            background-color: #E5E7EB;
+            background: var(--border);
         }
 
-        .status-dot {
+        .online-dot {
             position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            background-color: var(--status-online);
+            bottom: 1px;
+            right: 1px;
+            width: 11px;
+            height: 11px;
+            background: #10B981;
             border: 2px solid var(--surface);
             border-radius: 50%;
         }
 
-        .chat-info {
-            flex-grow: 1;
-            overflow: hidden;
+        .chat-meta {
+            flex: 1;
+            min-width: 0;         /* permite text-overflow */
         }
 
-        .chat-info-row {
+        .chat-meta-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .chat-name {
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text);
-            white-space: nowrap;
-            overflow: text-overflow;
-        }
-
-        .chat-time {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .chat-preview {
-            font-size: 13px;
-            color: var(--text-muted);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .unread-badge {
-            background-color: var(--primary);
-            color: white;
+        .chat-time {
             font-size: 11px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            margin-left: 8px;
         }
 
-        /* Columna Derecha: Ventana del chat activo */
+        .chat-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-preview {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        /* ── Ventana de chat activo (columna derecha) ─── */
         .chat-window {
-            flex-grow: 1;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: var(--bg);
+            background: var(--bg);
+            min-width: 0;
         }
 
-        .chat-window-header {
-            background-color: var(--surface);
-            padding: 16px 24px;
+        .chat-win-header {
+            background: var(--surface);
+            padding: 14px 24px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 80px;
         }
 
-        .active-user-info {
+        .chat-win-user {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .active-user-details h2 {
-            font-size: 16px;
+        .chat-win-user h3 {
+            font-size: 15px;
             font-weight: 700;
         }
 
-        .active-user-details p {
-            font-size: 13px;
-            color: var(--status-online);
+        .chat-win-user p {
+            font-size: 12px;
+            color: #10B981;
             font-weight: 500;
         }
 
-        .chat-actions {
+        .chat-win-actions {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .btn-action {
-            padding: 8px 16px;
+        .btn-chat-action {
+            padding: 7px 14px;
             border-radius: var(--radius-md);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             border: 1px solid var(--border);
-            background-color: var(--surface);
-            transition: all 0.2s;
+            background: var(--surface);
+            cursor: pointer;
+            transition: background 0.15s;
         }
 
-        .btn-action:hover {
-            background-color: var(--bg);
-        }
+        .btn-chat-action:hover { background: var(--bg); }
 
-        .btn-action.btn-primary {
-            background-color: var(--primary);
-            color: white;
+        .btn-chat-action.primary {
+            background: var(--primary);
+            color: #fff;
             border-color: var(--primary);
         }
 
-        .btn-action.btn-primary:hover {
-            background-color: #e0630f;
-        }
+        .btn-chat-action.primary:hover { background: #e0630f; }
 
-        /* Historial de Mensajes */
+        /* Historial */
         .chat-history {
-            flex-grow: 1;
-            padding: 24px;
+            flex: 1;
+            padding: 20px 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
-        .message-row {
-            display: flex;
-            width: 100%;
-        }
+        .msg-row { display: flex; width: 100%; }
+        .msg-row.received { justify-content: flex-start; }
+        .msg-row.sent    { justify-content: flex-end; }
 
-        .message-row.received {
-            justify-content: flex-start;
-        }
-
-        .message-row.sent {
-            justify-content: flex-end;
-        }
-
-        .message-box {
+        .msg-bubble {
             max-width: 60%;
-            padding: 12px 16px;
-            border-radius: var(--radius-lg);
+            padding: 11px 15px;
+            border-radius: 14px;
             font-size: 14px;
             line-height: 1.5;
-            position: relative;
             box-shadow: var(--shadow-sm);
         }
 
-        .message-row.received .message-box {
-            background-color: var(--surface);
+        .msg-row.received .msg-bubble {
+            background: var(--surface);
             color: var(--text);
             border-top-left-radius: 4px;
         }
 
-        .message-row.sent .message-box {
-            background-color: var(--primary);
-            color: white;
+        .msg-row.sent .msg-bubble {
+            background: var(--primary);
+            color: #fff;
             border-top-right-radius: 4px;
         }
 
-        .message-time {
+        .msg-time {
             display: block;
-            font-size: 11px;
-            margin-top: 6px;
+            font-size: 10px;
+            margin-top: 5px;
             text-align: right;
         }
 
-        .message-row.received .message-time {
-            color: var(--text-muted);
-        }
+        .msg-row.received .msg-time { color: var(--text-muted); }
+        .msg-row.sent    .msg-time { color: rgba(255,255,255,0.75); }
 
-        .message-row.sent .message-time {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* Área inferior de entrada de texto */
+        /* Input de texto */
         .chat-input-area {
-            background-color: var(--surface);
-            padding: 16px 24px;
+            background: var(--surface);
+            padding: 14px 20px;
             border-top: 1px solid var(--border);
         }
 
         .chat-input-form {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background-color: var(--bg);
+            gap: 10px;
+            background: var(--bg);
             border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: var(--radius-xl);
+            padding: 6px 10px;
+            border-radius: 999px;
         }
 
         .chat-input-form input {
-            flex-grow: 1;
+            flex: 1;
             border: none;
             background: transparent;
             padding: 8px;
             font-size: 14px;
             color: var(--text);
+            outline: none;
+            font-family: inherit;
         }
 
+        .btn-attach {
+            color: var(--text-muted);
+            padding: 6px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: background 0.15s;
+        }
+
+        .btn-attach:hover { background: var(--border); }
+
         .btn-send {
-            background-color: var(--primary);
-            color: white;
-            width: 40px;
-            height: 40px;
+            background: var(--primary);
+            color: #fff;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s;
             flex-shrink: 0;
         }
 
-        .btn-send:hover {
-            background-color: #e0630f;
-        }
+        .btn-send:hover { background: #e0630f; }
+        .btn-send svg { width: 17px; height: 17px; fill: #fff; transform: translateX(1px); }
 
-        .btn-send svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-            transform: translateX(1px);
-        }
-
-        .btn-attachment {
+        /* ── Pantalla vacía (sin chat seleccionado en escritorio) */
+        .chat-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             color: var(--text-muted);
-            padding: 8px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
+            gap: 12px;
         }
 
-        .btn-attachment:hover {
-            background-color: var(--border);
-            color: var(--text);
-        }
+        .chat-empty svg { opacity: 0.3; }
+        .chat-empty p { font-size: 15px; }
 
-        /* RESPONSIVIDAD (Layout adaptable móvil/escritorio) */
-        @media (max-width: 768px) {
-            .sidebar-left {
-                display: none; /* Simplificación móvil */
+        /* ═══════════════════════════════════════════════
+           AJUSTES ESCRITORIO
+           ═══════════════════════════════════════════════ */
+        @media (min-width: 768px) {
+            /* El desktop-main ya es flex-column; le quitamos el overflow
+               para que el módulo de mensajes maneje su propio scroll */
+            .desktop-main {
+                overflow: hidden;
+                padding: 0 !important;
             }
-            .messages-sidebar {
+
+            /* El topbar de mensajes es más compacto */
+            .msg-topbar {
+                padding: 16px 24px;
+                border-bottom: 1px solid var(--border);
+                background: var(--surface);
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex-shrink: 0;
+            }
+
+            .msg-topbar h1 {
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .msg-layout {
+                flex: 1;
+                overflow: hidden;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════
+           AJUSTES MÓVIL
+           ═══════════════════════════════════════════════ */
+        @media (max-width: 767px) {
+            /* En móvil solo mostramos la lista de chats */
+            .desktop-layout { display: none !important; }
+
+            /* El buscador debe limitarse al ancho del contenedor */
+            .mobile-layout .msg-search {
                 width: 100%;
+                box-sizing: border-box;
             }
-            .chat-window {
-                display: none; /* Oculto en móvil por defecto hasta seleccionar un chat */
+
+            /* La lista de chats llena el espacio entre header y bottom-nav */
+            .mobile-layout .chat-list {
+                overflow-y: auto;
             }
+
+            /* Dar espacio al bottom-nav */
+            .mobile-layout main {
+                padding-bottom: 70px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-layout { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <aside class="sidebar-left">
-            <div class="brand">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                ComuniApp
+    <!-- ══════════════════════════════════════════════
+         LAYOUT ESCRITORIO
+         ══════════════════════════════════════════════ -->
+    <div class="desktop-layout">
+
+        <!-- Sidebar idéntico al de home.html / categoria-hogar.html -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><span>C</span></div>
+                <span class="sidebar-app-name">ComuniApp</span>
             </div>
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item"><a href="home.html">Inicio</a></li>
-                    <li class="nav-item"><a href="perfil.html">Mi Perfil</a></li>
-                    <li class="nav-item active"><a href="mensajes.html">Mensajes</a></li>
-                    <li class="nav-item"><a href="trabajadores.html">Servicios</a></li>
-                </ul>
+            <nav class="sidebar-nav">
+                <a href="home.html" class="sidebar-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+                        <path d="M9 21V12h6v9"/>
+                    </svg>
+                    <span>Inicio</span>
+                </a>
+                <a href="mensajes.html" class="sidebar-item active">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Mensajes</span>
+                </a>
+                <a href="perfil_usuario.html" class="sidebar-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span>Perfil</span>
+                </a>
             </nav>
+
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="sidebar-user-info">
+                    <span class="sidebar-user-name">Mi cuenta</span>
+                    <span class="sidebar-user-email">usuario@ejemplo.com</span>
+                </div>
+            </div>
         </aside>
 
-        <main class="main-content">
-            
-            <section class="messages-sidebar">
-                <div class="messages-sidebar-header">
-                    <h1>Mensajes</h1>
-                    <div class="search-bar">
-                        <svg width="16" height="16" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="text" placeholder="Buscar chat...">
-                    </div>
-                </div>
+        <!-- Contenido principal -->
+        <main class="desktop-main">
 
-                <div class="chat-list">
-                    <div class="chat-item active">
-                        <div class="avatar-container">
-                            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2Fb0%2F20%2F9b%2Fb0209bb8b4fbe2cbdfb99db8a44b7437.jpg&f=1&nofb=1&ipt=8c819d37dcedfd24ecaadaffc8074b82a93971fa4b386b2296e2aa8e14ef85a6w=100&auto=format&fit=crop&q=60" alt="Avatar" class="avatar">
-                            <span class="status-dot"></span>
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-info-row">
-                                <span class="chat-name">Carlos Mendoza</span>
-                                <span class="chat-time">12:45 PM</span>
-                            </div>
-                            <div class="chat-info-row">
-                                <span class="chat-preview">Quedo perfecto, sí. Ya envié la cotización del mantenimiento.</span>
-                            </div>
+            <!-- Topbar de la sección -->
+            <div class="msg-topbar desktop-topbar">
+                <h1>Mensajes</h1>
+            </div>
+
+            <!-- Módulo de dos columnas -->
+            <div class="msg-layout">
+
+                <!-- Columna izquierda: lista de chats -->
+                <div class="msg-list-col">
+                    <div class="msg-list-header">
+                        <div class="msg-search">
+                            <svg width="15" height="15" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <input type="text" placeholder="Buscar chat...">
                         </div>
                     </div>
 
-                    <div class="chat-item">
-                        <div class="avatar-container">
-                            <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgo.rappler.com%2Fimages%2F20130419-mads-mikkelsen-hannibal-just-what-is-he-up-to.JPG&f=1&nofb=1&ipt=dd1863dfe34434dc9ddfcb6dc56e563dcaf5bad1e1b4d0e17dcb15e710e8ce26w=100&auto=format&fit=crop&q=60" alt="Avatar" class="avatar">
-                            <span class="status-dot"></span>
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-info-row">
-                                <span class="chat-name">Martin Gómez</span>
-                                <span class="chat-time">Ayer</span>
+                    <div class="chat-list">
+                        <!-- Chat activo -->
+                        <div class="chat-item active">
+                            <div class="chat-avatar">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" alt="Carlos Mendoza">
+                                <span class="online-dot"></span>
                             </div>
-                            <div class="chat-info-row">
-                                <span class="chat-preview">¿A qué hora podría pasar mañana a revisar la tubería?</span>
-                                <span class="unread-badge">1</span>
+                            <div class="chat-meta">
+                                <div class="chat-meta-row">
+                                    <span class="chat-name">Carlos Mendoza</span>
+                                    <span class="chat-time">12:45</span>
+                                </div>
+                                <div class="chat-preview-row">
+                                    <span class="chat-preview">Ya envié la cotización del mantenimiento.</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="chat-item">
-                        <div class="avatar-container">
-                            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Flaverdad.com.mx%2Fwp-content%2Fuploads%2F2020%2F10%2F1.0-22.jpg&f=1&nofb=1&ipt=500734d6a0dcad62d89748412d7d8a035e3f36c74267204a4aa3a9673750ac0bw=100&auto=format&fit=crop&q=60" alt="Avatar" class="avatar">
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-info-row">
-                                <span class="chat-name">Elena Peña</span>
-                                <span class="chat-time">22 May</span>
+                        <div class="chat-item">
+                            <div class="chat-avatar">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="Martin Gómez">
+                                <span class="online-dot"></span>
                             </div>
-                            <div class="chat-info-row">
-                                <span class="chat-preview">¿De que tamaño necesita la camiseta?.</span>
+                            <div class="chat-meta">
+                                <div class="chat-meta-row">
+                                    <span class="chat-name">Martin Gómez</span>
+                                    <span class="chat-time">Ayer</span>
+                                </div>
+                                <div class="chat-preview-row">
+                                    <span class="chat-preview">¿A qué hora podría pasar mañana a revisar la tubería?</span>
+                                    <span class="unread-badge">1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-item">
+                            <div class="chat-avatar">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" alt="Elena Peña">
+                            </div>
+                            <div class="chat-meta">
+                                <div class="chat-meta-row">
+                                    <span class="chat-name">Elena Peña</span>
+                                    <span class="chat-time">22 May</span>
+                                </div>
+                                <div class="chat-preview-row">
+                                    <span class="chat-preview">¿De qué tamaño necesita la camiseta?</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </div><!-- /msg-list-col -->
 
-            <section class="chat-window">
-                <div class="chat-window-header">
-                    <div class="active-user-info">
-                        <div class="avatar-container">
-                            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2Fb0%2F20%2F9b%2Fb0209bb8b4fbe2cbdfb99db8a44b7437.jpg&f=1&nofb=1&ipt=8c819d37dcedfd24ecaadaffc8074b82a93971fa4b386b2296e2aa8e14ef85a6w=100&auto=format&fit=crop&q=60w=100&auto=format&fit=crop&q=60" alt="Carlos Mendoza" class="avatar">
-                            <span class="status-dot"></span>
+                <!-- Columna derecha: ventana de chat -->
+                <section class="chat-window">
+                    <div class="chat-win-header">
+                        <div class="chat-win-user">
+                            <div class="chat-avatar">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" alt="Carlos Mendoza">
+                                <span class="online-dot"></span>
+                            </div>
+                            <div>
+                                <h3>Carlos Mendoza</h3>
+                                <p>En línea · Técnico Electricista</p>
+                            </div>
                         </div>
-                        <div class="active-user-details">
-                            <h2>Carlos Mendoza</h2>
-                            <p>En línea • Técnico Electricista</p>
-                        </div>
-                    </div>
-                    <div class="chat-actions">
-                        <button class="btn-action">Ver Perfil</button>
-                        <button class="btn-action btn-primary">Contratar Servicio</button>
-                    </div>
-                </div>
-
-                <div class="chat-history">
-                    <div class="message-row received">
-                        <div class="message-box">
-                            Hola, revisé los planos eléctricos de la cocina que subiste a la documentación del prototipo. Puedo hacer el trabajo este fin de semana.
-                            <span class="message-time">11:30 AM</span>
+                        <div class="chat-win-actions">
+                            <button class="btn-chat-action">Ver Perfil</button>
+                            <button class="btn-chat-action primary">Contratar Servicio</button>
                         </div>
                     </div>
 
-                    <div class="message-row sent">
-                        <div class="message-box">
-                            Excelente. ¿Me puedes confirmar el costo total de los materiales y la mano de obra para estar seguro?
-                            <span class="message-time">11:35 AM</span>
+                    <div class="chat-history">
+                        <div class="msg-row received">
+                            <div class="msg-bubble">
+                                Hola, revisé los planos eléctricos de la cocina. Puedo hacer el trabajo este fin de semana.
+                                <span class="msg-time">11:30</span>
+                            </div>
+                        </div>
+                        <div class="msg-row sent">
+                            <div class="msg-bubble">
+                                Excelente. ¿Me puedes confirmar el costo total de los materiales y la mano de obra?
+                                <span class="msg-time">11:35</span>
+                            </div>
+                        </div>
+                        <div class="msg-row received">
+                            <div class="msg-bubble">
+                                Claro. El presupuesto final incluyendo interruptores nuevos y cableado es de $150.000. Ya te lo desglosé formalmente.
+                                <span class="msg-time">12:45</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="message-row received">
-                        <div class="message-box">
-                            Quedo perfecto, sí. El presupuesto final incluyendo los interruptores nuevos y el cableado es de $150,000. Te lo acabo de desglosar formalmente.
-                            <span class="message-time">12:45 PM</span>
-                        </div>
+                    <div class="chat-input-area">
+                        <form class="chat-input-form" onsubmit="event.preventDefault()">
+                            <button type="button" class="btn-attach" title="Adjuntar">
+                                <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                </svg>
+                            </button>
+                            <input type="text" placeholder="Escribe un mensaje...">
+                            <button type="submit" class="btn-send">
+                                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            </button>
+                        </form>
                     </div>
-                </div>
+                </section>
 
-                <div class="chat-input-area">
-                    <form class="chat-input-form" onsubmit="event.preventDefault();">
-                        <button type="button" class="btn-attachment" title="Adjuntar archivo o imagen">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                        </button>
-                        <input type="text" placeholder="Escribe un mensaje aquí para la comunidad...">
-                        <button type="submit" class="btn-send" title="Enviar mensaje">
-                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                        </button>
-                    </form>
-                </div>
-            </section>
-
+            </div><!-- /msg-layout -->
         </main>
-    </div>
+    </div><!-- /desktop-layout -->
+
+
+    <!-- ══════════════════════════════════════════════
+         LAYOUT MÓVIL
+         ══════════════════════════════════════════════ -->
+    <div class="app-container page-content mobile-layout">
+
+        <header class="sticky-header">
+            <span style="font-size: 17px; font-weight: 700; color: var(--text);">Mensajes</span>
+        </header>
+
+        <main>
+            <!-- Buscador contenido dentro del padding del móvil -->
+            <div style="padding: 12px 16px 8px;">
+                <div class="msg-search">
+                    <svg width="15" height="15" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" placeholder="Buscar chat...">
+                </div>
+            </div>
+
+            <!-- Lista de chats -->
+            <div class="chat-list">
+                <div class="chat-item active">
+                    <div class="chat-avatar">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" alt="Carlos Mendoza">
+                        <span class="online-dot"></span>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-meta-row">
+                            <span class="chat-name">Carlos Mendoza</span>
+                            <span class="chat-time">12:45</span>
+                        </div>
+                        <div class="chat-preview-row">
+                            <span class="chat-preview">Ya envié la cotización del mantenimiento.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="Martin Gómez">
+                        <span class="online-dot"></span>
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-meta-row">
+                            <span class="chat-name">Martin Gómez</span>
+                            <span class="chat-time">Ayer</span>
+                        </div>
+                        <div class="chat-preview-row">
+                            <span class="chat-preview">¿A qué hora podría pasar mañana a revisar la tubería?</span>
+                            <span class="unread-badge">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-item">
+                    <div class="chat-avatar">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" alt="Elena Peña">
+                    </div>
+                    <div class="chat-meta">
+                        <div class="chat-meta-row">
+                            <span class="chat-name">Elena Peña</span>
+                            <span class="chat-time">22 May</span>
+                        </div>
+                        <div class="chat-preview-row">
+                            <span class="chat-preview">¿De qué tamaño necesita la camiseta?</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navegación inferior idéntica a home.html -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Inicio
+            </a>
+            <a href="mensajes.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+                Mensajes
+            </a>
+            <a href="perfil_usuario.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Perfil
+            </a>
+        </nav>
+
+    </div><!-- /mobile-layout -->
 
 </body>
 </html>
