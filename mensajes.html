@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComuniApp - Mensajes</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    <style>
+        /* ── VARIABLES GLOBALES (Basadas en la documentación de ComuniApp) ── */
+        :root {
+            --primary: #F97316; /* Naranja principal */
+            --primary-light: #FFEDD5;
+            --bg: #F9FAFB;
+            --surface: #FFFFFF;
+            --text: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            
+            /* Categorías y Estados */
+            --status-online: #10B981;
+            --cat-hogar: #FFEDD5;
+            
+            /* Tipografía */
+            --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            
+            /* Radios y Sombras */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+        }
+
+        /* ── RESET Y ESTILOS BASE ── */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+        }
+
+        input {
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* ── LAYOUT PRINCIPAL (Sidebar + Contenedor de Contenido) ── */
+        .app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Barra lateral de navegación global de ComuniApp */
+        .sidebar-left {
+            width: 260px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-borde: 32px;
+            padding-left: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* AREA PRINCIPAL: Módulo de Mensajería de Dos Columnas */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            background-color: var(--surface);
+        }
+
+        /* Columna Izquierda: Lista de chats/conversaciones */
+        .messages-sidebar {
+            width: 350px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background-color: var(--surface);
+            flex-shrink: 0;
+        }
+
+        .messages-sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .messages-sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            margin-left: 8px;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .chat-list {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            border-bottom: 1px solid #F3F4F6;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .chat-item:hover, .chat-item.active {
+            background-color: var(--bg);
+        }
+
+        .chat-item.active {
+            border-left: 4px solid var(--primary);
+            padding-left: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #E5E7EB;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--status-online);
+            border: 2px solid var(--surface);
+            border-radius: 50%;
+        }
+
+        .chat-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .chat-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: text-overflow;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chat-preview {
+            font-size: 13px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background-color: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Columna Derecha: Ventana del chat activo */
+        .chat-window {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg);
+        }
+
+        .chat-window-header {
+            background-color: var(--surface);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .active-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .active-user-details h2 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .active-user-details p {
+            font-size: 13px;
+            color: var(--status-online);
+            font-weight: 500;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: var(--bg);
+        }
+
+        .btn-action.btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-action.btn-primary:hover {
+            background-color: #e0630f;
+        }
+
+        /* Historial de Mensajes */
+        .chat-history {
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .message-row.received {
+            justify-content: flex-start;
+        }
+
+        .message-row.sent {
+            justify-content: flex-end;
+        }
+
+        .message-box {
+            max-width: 60%;
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-row.received .message-box {
+            background-color: var(--surface);
+            color: var(--text);
+            border-top-left-radius: 4px;
+        }
+
+        .message-row.sent .message-box {
+            background-color: var(--primary);
+            color: white;
+            border-top-right-radius: 4px;
+        }
+
+        .message-time {
+            display: block;
+            font-size: 11px;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .message-row.received .message-time {
+            color: var(--text-muted);
+        }
+
+        .message-row.sent .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Área inferior de entrada de texto */
+        .chat-input-area {
+            background-color: var(--surface);
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input-form {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: var(--radius-xl);
+        }
+
+        .chat-input-form input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            padding: 8px;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .btn-send {
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-send:hover {
+            background-color: #e0630f;
+        }
+
+        .btn-send svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transform: translateX(1px);
+        }
+
+        .btn-attachment {
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .btn-attachment:hover {
+            background-color: var(--border);
+            color: var(--text);
+        }
+
+        /* RESPONSIVIDAD (Layout adaptable móvil/escritorio) */
+        @media (max-width: 768px) {
+            .sidebar-left {
+                display: none; /* Simplificación móvil */
+            }
+            .messages-sidebar {
+                width: 100%;
+            }
+            .chat-window {
+                display: none; /* Oculto en móvil por defecto hasta seleccionar un chat */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <aside class="sidebar-left">
+            <div class="brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                ComuniApp
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="home.html">Inicio</a></li>
+                    <li class="nav-item"><a href="perfil.html">Mi Perfil</a></li>
+                    <li class="nav-item active"><a href="mensajes.html">Mensajes</a></li>
+                    <li class="nav-item"><a href="trabajadores.html">Servicios</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <section class="messages-sidebar">
+                <div class="messages-sidebar-header">
+                    <h1>Mensajes</h1>
+                    <div class="search-bar">
+                        <svg width="16" height="16" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" placeholder="Buscar chat...">
+                    </div>
+                </div>
+
+                <div class="chat-list">
+                    <div class="chat-item active">
+                        <div class="avatar-container">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60" alt="Avatar" class="avatar">
+                            <span class="status-dot"></span>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-info-row">
+                                <span class="chat-name">Carlos Mendoza</span>
+                                <span class="chat-time">12:45 PM</span>
+                            </div>
+                            <div class="chat-info-row">
+                                <span class="chat-preview">Quedo perfecto, sí. Ya envié la cotización del mantenimiento.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-item">
+                        <div class="avatar-container">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60" alt="Avatar" class="avatar">
+                            <span class="status-dot"></span>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-info-row">
+                                <span class="chat-name">Marta Gómez</span>
+                                <span class="chat-time">Ayer</span>
+                            </div>
+                            <div class="chat-info-row">
+                                <span class="chat-preview">¿A qué hora podría pasar mañana a revisar la tubería?</span>
+                                <span class="unread-badge">1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-item">
+                        <div class="avatar-container">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=60" alt="Avatar" class="avatar">
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-info-row">
+                                <span class="chat-name">Elena Peña</span>
+                                <span class="chat-time">22 May</span>
+                            </div>
+                            <div class="chat-info-row">
+                                <span class="chat-preview">Gracias por el excelente trabajo con la pintura de la sala.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="chat-window">
+                <div class="chat-window-header">
+                    <div class="active-user-info">
+                        <div class="avatar-container">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60" alt="Carlos Mendoza" class="avatar">
+                            <span class="status-dot"></span>
+                        </div>
+                        <div class="active-user-details">
+                            <h2>Carlos Mendoza</h2>
+                            <p>En línea • Técnico Electricista</p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn-action">Ver Perfil</button>
+                        <button class="btn-action btn-primary">Contratar Servicio</button>
+                    </div>
+                </div>
+
+                <div class="chat-history">
+                    <div class="message-row received">
+                        <div class="message-box">
+                            Hola, revisé los planos eléctricos de la cocina que subiste a la documentación del prototipo. Puedo hacer el trabajo este fin de semana.
+                            <span class="message-time">11:30 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="message-row sent">
+                        <div class="message-box">
+                            Excelente. ¿Me puedes confirmar el costo total de los materiales y la mano de obra para estar seguro?
+                            <span class="message-time">11:35 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="message-row received">
+                        <div class="message-box">
+                            Quedo perfecto, sí. El presupuesto final incluyendo los interruptores nuevos y el cableado es de $150,000 COP. Te lo acabo de desglosar formalmente.
+                            <span class="message-time">12:45 PM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <form class="chat-input-form" onsubmit="event.preventDefault();">
+                        <button type="button" class="btn-attachment" title="Adjuntar archivo o imagen">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        </button>
+                        <input type="text" placeholder="Escribe un mensaje aquí para la comunidad...">
+                        <button type="submit" class="btn-send" title="Enviar mensaje">
+                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>
